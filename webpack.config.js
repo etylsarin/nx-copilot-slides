@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // Customized babel loader with the minimum we need to get `mdx` libraries
@@ -55,8 +56,14 @@ module.exports = {
       }
     ]
   },
+  // webpack 5 no longer polyfills Node core modules; spectacle's markdown
+  // helpers (mdast-util-assert) still require `assert` and read `process`.
+  resolve: {
+    fallback: { assert: require.resolve('assert/') }
+  },
   // Default for boilerplate generation.
   plugins: [
+    new webpack.ProvidePlugin({ process: 'process/browser' }),
     new HtmlWebpackPlugin({
       title: 'Spectacle presentation',
       template: './src/index.html'
